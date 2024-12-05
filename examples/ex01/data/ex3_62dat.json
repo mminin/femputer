@@ -1,0 +1,50 @@
+{
+"notes":{"task":"find largest tensile and compressive stresses"},
+"materials":
+  {
+    "EEL":{"young_modulus": 70000000000, "area":0.003125}
+  },
+"dimensionality":2,
+"nodes":
+  {
+    "A":{"x":0, "y":0},
+    "B":{"x":2, "y":0},
+    "C":{"x":2, "y":2},
+    "D":{"x":4, "y":2},
+    "E":{"x":4, "y":4},
+    "F":{"x":6, "y":4},
+    "G":{"x":6, "y":6},
+    "H":{"x":8, "y":6},
+    "I":{"x":8, "y":8}
+  },
+"elements":
+  {
+    "1":{"nodes":["A", "B"], "material":"EEL"},
+    "2":{"nodes":["B", "C"], "material":"EEL"},
+    "3":{"nodes":["A", "C"], "material":"EEL"},
+    "4":{"nodes":["B", "D"], "material":"EEL"},
+    "5":{"nodes":["C", "D"], "material":"EEL"},
+    "6":{"nodes":["C", "E"], "material":"EEL"},
+    "7":{"nodes":["D", "E"], "material":"EEL"},
+    "8":{"nodes":["D", "F"], "material":"EEL"},
+    "9":{"nodes":["E", "F"], "material":"EEL"},
+    "10":{"nodes":["E", "G"], "material":"EEL"},
+    "11":{"nodes":["F", "G"], "material":"EEL"},
+    "12":{"nodes":["F", "H"], "material":"EEL"},
+    "13":{"nodes":["G", "H"], "material":"EEL"},
+    "14":{"nodes":["G", "I"], "material":"EEL"},
+    "15":{"nodes":["H", "I"], "material":"EEL"}
+  },
+"boundary_conditions":
+  {
+    "A":["x", "y"],
+    "I":["x"]
+  },
+"forces":
+  {
+    "C":{"x":0, "y":-1000},
+    "E":{"x":0, "y":-1000},
+    "G":{"x":0, "y":-1000},
+    "I":{"x":0, "y":-500}
+  }
+}
