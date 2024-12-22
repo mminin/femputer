@@ -3,8 +3,8 @@ import numpy as np
 
 # Define Node class
 class Node:
-    def __init__(self, id, x, y):
-        self.id = id
+    def __init__(self, ID, x, y):
+        self.id = ID
         self.x = x
         self.y = y
         self.force = np.array([0.0, 0.0])
@@ -15,8 +15,8 @@ class Node:
     def create_nodes(data): 
         # Initialize nodes from JSON data
         nodes = []
-        for id, coords in data["nodes"].items():
-            nodes.append(Node(id, coords["x"], coords["y"]))
+        for ID, coords in data["nodes"].items():
+            nodes.append(Node(ID, coords["x"], coords["y"]))
         # Apply boundary conditions from JSON data
         for node_id, dofs in data["boundary_conditions"].items():
             node = next(node for node in nodes if node.id == node_id)
@@ -30,14 +30,19 @@ class Node:
 
 # Define Element class
 class Element:
-    def __init__(self, id, node1, node2, material):
-        self.id = id
+    def __init__(self, ID, node1, node2, material):
+        self.id = ID
         self.node1 = node1
         self.node2 = node2
         self.material = material
         self.length = np.sqrt((node2.x - node1.x) ** 2 + (node2.y - node1.y) ** 2)
         self.stiffness_matrix = self.calculate_stiffness()
-    
+        
+    def update_properties(self):
+        """Update element length and stiffness matrix."""
+        self.length = ((self.node2.x - self.node1.x)**2 + (self.node2.y - self.node1.y)**2)**0.5
+        self.stiffness_matrix = self.calculate_stiffness()
+
     def calculate_stiffness(self):
         A = self.material.area
         E = self.material.young_modulus
@@ -59,23 +64,25 @@ class Element:
     def create_elements(data, nodes, materials):
         # Initialize elements from JSON data
         elements = []
-        for id, element_data in data["elements"].items():
+        for ID, element_data in data["elements"].items():
             node1 = next(node for node in nodes if node.id == element_data["nodes"][0])
             node2 = next(node for node in nodes if node.id == element_data["nodes"][1])
             material = materials[element_data["material"]]
-            elements.append(Element(id, node1, node2, material))
+            elements.append(Element(ID, node1, node2, material))
         return elements
 
 
 # Define Material class
 class Material:
-    def __init__(self, young_modulus, area):
+    def __init__(self, key, young_modulus, area):
+        self.key = key
         self.young_modulus = young_modulus
         self.area = area
         
     @staticmethod
     def create_materials(data):
-        materials = {m_id: Material(**props) for m_id, props in data["materials"].items()}
+        materials = {m_id: Material(key=m_id, **props) for m_id, props in data["materials"].items()}
         return materials
 
+        
 

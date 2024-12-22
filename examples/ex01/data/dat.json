@@ -1,50 +1,51 @@
 {
+"units":"imperial",
 "notes":{"task":"find largest tensile and compressive stresses"},
 "materials":
   {
-    "EEL":{"young_modulus": 70000000000, "area":0.003125}
+    "EEL":{"young_modulus": 30000000, "area":1},
+    "EEL1":{"young_modulus": 30000000, "area":1},
+    "EEL6":{"young_modulus": 30000000, "area":6},
+    "EEL8":{"young_modulus": 30000000, "area":8},
+    "EEL10":{"young_modulus": 30000000, "area":10},
+    "EEL11":{"young_modulus": 30000000, "area":11}
   },
 "dimensionality":2,
 "nodes":
   {
     "A":{"x":0, "y":0},
-    "B":{"x":2, "y":0},
-    "C":{"x":2, "y":2},
-    "D":{"x":4, "y":2},
-    "E":{"x":4, "y":4},
-    "F":{"x":6, "y":4},
-    "G":{"x":6, "y":6},
-    "H":{"x":8, "y":6},
-    "I":{"x":8, "y":8}
+    "B":{"x":0, "y":120},
+    "C":{"x":120, "y":120},
+    "D":{"x":120, "y":0},
+    "E":{"x":420, "y":420}
   },
 "elements":
   {
     "1":{"nodes":["A", "B"], "material":"EEL"},
     "2":{"nodes":["B", "C"], "material":"EEL"},
-    "3":{"nodes":["A", "C"], "material":"EEL"},
-    "4":{"nodes":["B", "D"], "material":"EEL"},
-    "5":{"nodes":["C", "D"], "material":"EEL"},
-    "6":{"nodes":["C", "E"], "material":"EEL"},
-    "7":{"nodes":["D", "E"], "material":"EEL"},
-    "8":{"nodes":["D", "F"], "material":"EEL"},
-    "9":{"nodes":["E", "F"], "material":"EEL"},
-    "10":{"nodes":["E", "G"], "material":"EEL"},
-    "11":{"nodes":["F", "G"], "material":"EEL"},
-    "12":{"nodes":["F", "H"], "material":"EEL"},
-    "13":{"nodes":["G", "H"], "material":"EEL"},
-    "14":{"nodes":["G", "I"], "material":"EEL"},
-    "15":{"nodes":["H", "I"], "material":"EEL"}
+    "3":{"nodes":["C", "D"], "material":"EEL"},
+    "4":{"nodes":["D", "A"], "material":"EEL"},
+    "5":{"nodes":["B", "D"], "material":"EEL"},
+    "6":{"nodes":["B", "E"], "material":"EEL"},
+    "7":{"nodes":["C", "E"], "material":"EEL"}
+  },
+"elements_bak":
+  {
+    "1":{"nodes":["A", "B"], "material":"EEL6"},
+    "2":{"nodes":["B", "C"], "material":"EEL8"},
+    "3":{"nodes":["C", "D"], "material":"EEL8"},
+    "4":{"nodes":["D", "A"], "material":"EEL1"},
+    "5":{"nodes":["B", "D"], "material":"EEL1"},
+    "6":{"nodes":["B", "E"], "material":"EEL10"},
+    "7":{"nodes":["C", "E"], "material":"EEL11"}
   },
 "boundary_conditions":
   {
     "A":["x", "y"],
-    "I":["x"]
+    "D":["y"]
   },
 "forces":
   {
-    "C":{"x":0, "y":-1000},
-    "E":{"x":0, "y":-1000},
-    "G":{"x":0, "y":-1000},
-    "I":{"x":0, "y":-500}
+    "E":{"x":0, "y":-20000}
   }
 }
