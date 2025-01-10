@@ -1,51 +1,318 @@
 {
-"units":"imperial",
-"notes":{"task":"find largest tensile and compressive stresses"},
-"materials":
-  {
-    "EEL":{"young_modulus": 30000000, "area":1},
-    "EEL1":{"young_modulus": 30000000, "area":1},
-    "EEL6":{"young_modulus": 30000000, "area":6},
-    "EEL8":{"young_modulus": 30000000, "area":8},
-    "EEL10":{"young_modulus": 30000000, "area":10},
-    "EEL11":{"young_modulus": 30000000, "area":11}
-  },
-"dimensionality":2,
-"nodes":
-  {
-    "A":{"x":0, "y":0},
-    "B":{"x":0, "y":120},
-    "C":{"x":120, "y":120},
-    "D":{"x":120, "y":0},
-    "E":{"x":420, "y":420}
-  },
-"elements":
-  {
-    "1":{"nodes":["A", "B"], "material":"EEL"},
-    "2":{"nodes":["B", "C"], "material":"EEL"},
-    "3":{"nodes":["C", "D"], "material":"EEL"},
-    "4":{"nodes":["D", "A"], "material":"EEL"},
-    "5":{"nodes":["B", "D"], "material":"EEL"},
-    "6":{"nodes":["B", "E"], "material":"EEL"},
-    "7":{"nodes":["C", "E"], "material":"EEL"}
-  },
-"elements_bak":
-  {
-    "1":{"nodes":["A", "B"], "material":"EEL6"},
-    "2":{"nodes":["B", "C"], "material":"EEL8"},
-    "3":{"nodes":["C", "D"], "material":"EEL8"},
-    "4":{"nodes":["D", "A"], "material":"EEL1"},
-    "5":{"nodes":["B", "D"], "material":"EEL1"},
-    "6":{"nodes":["B", "E"], "material":"EEL10"},
-    "7":{"nodes":["C", "E"], "material":"EEL11"}
-  },
-"boundary_conditions":
-  {
-    "A":["x", "y"],
-    "D":["y"]
-  },
-"forces":
-  {
-    "E":{"x":0, "y":-20000}
-  }
+    "units": "metric",
+    "notes": {
+        "task": "find largest tensile and compressive stresses"
+    },
+    "shapes": {
+        "EEL": {
+            "young_modulus": 206842800000.0,
+            "area": 0.00064516,
+            "Ix (m4)": 1,
+            "Iy (m4)": 1
+        }
+    },
+    "materials": {
+        "mild steel": {
+            "young_modulus": 206842800000.0,
+            "tensile_strength": 250000000,
+            "compressive_strength": 150000000
+        },
+        "oak wood": {
+            "young_modulus": 11000000000.0,
+            "tensile_strength": 70000000,
+            "compressive_strength": 40000000
+        }
+    },
+    "dimensionality": 2,
+    "nodes": {
+        "A": {
+            "x": -4.0,
+            "y": 0.0
+        },
+        "B": {
+            "x": 0,
+            "y": 0.0
+        },
+        "C": {
+            "x": 4,
+            "y": 0.0
+        },
+        "D": {
+            "x": -3.33,
+            "y": 4
+        },
+        "E": {
+            "x": 0,
+            "y": 4.0
+        },
+        "F": {
+            "x": 3.33,
+            "y": 4.0
+        },
+        "G": {
+            "x": -2.67,
+            "y": 8.0
+        },
+        "H": {
+            "x": 0,
+            "y": 8
+        },
+        "I": {
+            "x": 2.67,
+            "y": 8
+        },
+        "J": {
+            "x": -2,
+            "y": 12
+        },
+        "K": {
+            "x": 0,
+            "y": 12
+        },
+        "L": {
+            "x": 2,
+            "y": 12
+        },
+        "M": {
+            "x": -2,
+            "y": 16
+        },
+        "N": {
+            "x": 2,
+            "y": 16
+        }
+    },
+    "elements": {
+        "1": {
+            "nodes": [
+                "A",
+                "B"
+            ],
+            "material": "mild steel",
+            "shape": "L127x89x13"
+        },
+        "2": {
+            "nodes": [
+                "B",
+                "C"
+            ],
+            "material": "mild steel",
+            "shape": "L127x89x13"
+        },
+        "3": {
+            "nodes": [
+                "A",
+                "D"
+            ],
+            "material": "mild steel",
+            "shape": "L152x152x11"
+        },
+        "4": {
+            "nodes": [
+                "B",
+                "D"
+            ],
+            "material": "mild steel",
+            "shape": "L152x152x7.9"
+        },
+        "5": {
+            "nodes": [
+                "B",
+                "F"
+            ],
+            "material": "mild steel",
+            "shape": "L152x152x7.9"
+        },
+        "6": {
+            "nodes": [
+                "F",
+                "C"
+            ],
+            "material": "mild steel",
+            "shape": "L152x152x11"
+        },
+        "7": {
+            "nodes": [
+                "D",
+                "E"
+            ],
+            "material": "mild steel",
+            "shape": "L127x127x6.4"
+        },
+        "8": {
+            "nodes": [
+                "E",
+                "F"
+            ],
+            "material": "mild steel",
+            "shape": "L127x127x6.4"
+        },
+        "9": {
+            "nodes": [
+                "D",
+                "G"
+            ],
+            "material": "mild steel",
+            "shape": "L152x152x7.9"
+        },
+        "10": {
+            "nodes": [
+                "G",
+                "E"
+            ],
+            "material": "mild steel",
+            "shape": "L152x152x6.4"
+        },
+        "11": {
+            "nodes": [
+                "E",
+                "I"
+            ],
+            "material": "mild steel",
+            "shape": "L152x152x6.4"
+        },
+        "12": {
+            "nodes": [
+                "I",
+                "F"
+            ],
+            "material": "mild steel",
+            "shape": "L152x152x7.9"
+        },
+        "13": {
+            "nodes": [
+                "G",
+                "H"
+            ],
+            "material": "mild steel",
+            "shape": "L89x89x6.4"
+        },
+        "14": {
+            "nodes": [
+                "H",
+                "I"
+            ],
+            "material": "mild steel",
+            "shape": "L89x89x6.4"
+        },
+        "15": {
+            "nodes": [
+                "G",
+                "J"
+            ],
+            "material": "mild steel",
+            "shape": "L127x127x6.4"
+        },
+        "16": {
+            "nodes": [
+                "J",
+                "H"
+            ],
+            "material": "mild steel",
+            "shape": "L127x127x6.4"
+        },
+        "17": {
+            "nodes": [
+                "H",
+                "L"
+            ],
+            "material": "mild steel",
+            "shape": "L127x127x6.4"
+        },
+        "18": {
+            "nodes": [
+                "L",
+                "I"
+            ],
+            "material": "mild steel",
+            "shape": "L127x127x6.4"
+        },
+        "19": {
+            "nodes": [
+                "J",
+                "K"
+            ],
+            "material": "mild steel",
+            "shape": "L76x64x4.8"
+        },
+        "20": {
+            "nodes": [
+                "K",
+                "L"
+            ],
+            "material": "mild steel",
+            "shape": "L76x64x4.8"
+        },
+        "21": {
+            "nodes": [
+                "J",
+                "M"
+            ],
+            "material": "mild steel",
+            "shape": "L102x102x6.4"
+        },
+        "22": {
+            "nodes": [
+                "M",
+                "K"
+            ],
+            "material": "mild steel",
+            "shape": "L19x19x3.2"
+        },
+        "23": {
+            "nodes": [
+                "K",
+                "N"
+            ],
+            "material": "mild steel",
+            "shape": "L19x19x3.2"
+        },
+        "24": {
+            "nodes": [
+                "N",
+                "L"
+            ],
+            "material": "mild steel",
+            "shape": "L102x102x6.4"
+        },
+        "25": {
+            "nodes": [
+                "M",
+                "N"
+            ],
+            "material": "mild steel",
+            "shape": "L19x19x3.2"
+        }
+    },
+    "boundary_conditions": {
+        "A": [
+            "x",
+            "y"
+        ],
+        "C": [
+            "y"
+        ]
+    },
+    "forces": {
+        "D": {
+            "x": 100000.0,
+            "y": 0
+        },
+        "G": {
+            "x": 100000.0,
+            "y": 0
+        },
+        "J": {
+            "x": 100000.0,
+            "y": 0
+        },
+        "M": {
+            "x": 50000.0,
+            "y": -60000.0
+        },
+        "M": {
+            "x": 0,
+            "y": -60000.0
+        }
+    }
 }
