@@ -5,29 +5,36 @@ from pathlib import Path
 
 # Define Node class
 class Node:
-    def __init__(self, ID, x, y):
+    def __init__(self, ID, x, y, z=0.0):
         self.id = ID
         self.x = x
         self.y = y
-        self.force = np.array([0.0, 0.0])
-        self.displacement = np.array([None, None])
-        self.fixed = {"x": False, "y": False}
-        
+        self.z = z
+        self.force = np.array([0.0, 0.0, 0.0])
+        self.displacement = np.array([None, None, None])
+        self.fixed = {"x": False, "y": False, "z": False}
+    
     @staticmethod
-    def create_nodes(data): 
-        # Initialize nodes from JSON data
+    def create_nodes(data, is_3d=True):
+        """Initialize nodes from JSON data in 2D or 3D."""
         nodes = []
         for ID, coords in data["nodes"].items():
-            nodes.append(Node(ID, coords["x"], coords["y"]))
-        # Apply boundary conditions from JSON data
+            nodes.append(Node(ID, coords["x"], coords["y"], coords.get("z", 0.0) if is_3d else 0.0))
+        
+        # Apply boundary conditions
         for node_id, dofs in data["boundary_conditions"].items():
             node = next(node for node in nodes if node.id == node_id)
             for dof in dofs:
                 node.fixed[dof] = True
-        # Apply forces from JSON data
+        
+        # Apply forces
         for node_id, forces in data["forces"].items():
             node = next(node for node in nodes if node.id == node_id)
-            node.force = np.array([forces.get("x", 0.0), forces.get("y", 0.0)])
+            node.force = np.array([
+                forces.get("x", 0.0),
+                forces.get("y", 0.0),
+                forces.get("z", 0.0) if is_3d else 0.0
+            ])
         return nodes
 
 # Define Element class
@@ -38,12 +45,13 @@ class Element:
         self.node2 = node2
         self.shape = shape
         self.material = material
-        self.length = np.sqrt((node2.x - node1.x) ** 2 + (node2.y - node1.y) ** 2)
+        self.length = np.sqrt((node2.x - node1.x) ** 2 + (node2.y - node1.y) ** 2 + (node2.z - node1.z) ** 2)
         self.stiffness_matrix = self.calculate_stiffness()
         
     def update_properties(self):
         """Update element length and stiffness matrix."""
-        self.length = ((self.node2.x - self.node1.x)**2 + (self.node2.y - self.node1.y)**2)**0.5
+        #self.length = ((self.node2.x - self.node1.x)**2 + (self.node2.y - self.node1.y)**2)**0.5
+        self.length = np.sqrt((self.node2.x - self.node1.x) ** 2 + (self.node2.y - self.node1.y) ** 2 + (self.node2.z - self.node1.z) ** 2)
         self.stiffness_matrix = self.calculate_stiffness()
 
     def calculate_stiffness(self):
@@ -51,46 +59,35 @@ class Element:
         A = self.shape.area  # Access area from the Shape object
         E = self.material.young_modulus  # Access Young's modulus from the Material object
         L = self.length
+        #print(self.id)
+        #print(self.node1.x, self.node1.y, self.node1.z)
+        #print(self.node2.x, self.node2.y, self.node2.z)
+        #print(L)
         k = (A * E) / L
         cos_theta = (self.node2.x - self.node1.x) / L
         sin_theta = (self.node2.y - self.node1.y) / L
-        k_local = k * np.array(
-            [
-                [cos_theta ** 2, cos_theta * sin_theta, -cos_theta ** 2, -cos_theta * sin_theta],
-                [cos_theta * sin_theta, sin_theta ** 2, -cos_theta * sin_theta, -sin_theta ** 2],
-                [-cos_theta ** 2, -cos_theta * sin_theta, cos_theta ** 2, cos_theta * sin_theta],
-                [-cos_theta * sin_theta, -sin_theta ** 2, cos_theta * sin_theta, sin_theta ** 2]
-            ]
-        )
+        sin_phi = (self.node2.z - self.node1.z) / L
+        k_local = k * np.array([
+            [cos_theta ** 2, cos_theta * sin_theta, cos_theta * sin_phi, -cos_theta ** 2, -cos_theta * sin_theta, -cos_theta * sin_phi],
+            [cos_theta * sin_theta, sin_theta ** 2, sin_theta * sin_phi, -cos_theta * sin_theta, -sin_theta ** 2, -sin_theta * sin_phi],
+            [cos_theta * sin_phi, sin_theta * sin_phi, sin_phi ** 2, -cos_theta * sin_phi, -sin_theta * sin_phi, -sin_phi ** 2],
+            [-cos_theta ** 2, -cos_theta * sin_theta, -cos_theta * sin_phi, cos_theta ** 2, cos_theta * sin_theta, cos_theta * sin_phi],
+            [-cos_theta * sin_theta, -sin_theta ** 2, -sin_theta * sin_phi, cos_theta * sin_theta, sin_theta ** 2, sin_theta * sin_phi],
+            [-cos_theta * sin_phi, -sin_theta * sin_phi, -sin_phi ** 2, cos_theta * sin_phi, sin_theta * sin_phi, sin_phi ** 2]
+        ])
+        #print("stiffness mtx, \n")
+        #print(k_local.round(2))
         return k_local
     
-    @staticmethod
-    def set_material_20250108_1839(material_id, materials, lookup_table):
+    def stiffness_matrix_3d(self):
+        """Alias for calculate_stiffness to match function call in femsolver.py."""
+        return self.calculate_stiffness()
+    
+    def stiffness_matrix_2d(self):
+        """Compute a 2D version of the stiffness matrix by removing z-components."""
+        full_matrix = self.calculate_stiffness()
+        return full_matrix[np.ix_([0,1,3,4],[0,1,3,4])]
 
-        if material_id in materials:
-            return materials[material_id]
-        
-        if material_id == "UNK":
-            # Placeholder for unknown material
-            return Material(
-                key="UNK",
-                young_modulus=1e9,  # Placeholder Young's Modulus (Pa)
-                area=0.01,  # Placeholder area (m^2)
-                #moment_of_inertia=1e-6  # Placeholder moment of inertia (m^4)
-            )
-        
-        # Lookup material in the table
-        row = lookup_table[lookup_table["Shape"] == material_id]
-        if not row.empty:
-            return Material(
-                key=material_id,
-                #young_modulus=row["Young's Modulus (Pa)"].values[0],
-                young_modulus=206842800000.0, # TODO: get this value from somewhere else
-                area=row["Area (m2)"].values[0],
-                #moment_of_inertia=row["Ix (m4)"].values[0]
-            )
-        
-        raise ValueError(f"Material '{material_id}' is undefined. Check spelling or provide properties.")
 
     @staticmethod
     def set_material(material_id, materials):
@@ -151,7 +148,7 @@ class Element:
                         f"Available shapes: {list(shapes.keys()) + lookup_table['Shape'].tolist()}")
 
     @staticmethod
-    def create_elements(data, nodes, shapes, materials):
+    def create_elements(data, nodes, shapes, materials, lt_fname):
         """
         Create elements by assigning nodes, shapes, and materials.
 
@@ -166,7 +163,8 @@ class Element:
         """
         # Load the lookup table for shapes
         script_dir = Path(__file__).resolve().parent
-        lookup_table_path = script_dir / "LookupTables" / "beam_pricing_all.csv"
+        #lookup_table_path = script_dir / "LookupTables" / "beam_pricing_all.csv"
+        lookup_table_path = lt_fname
         lookup_table = pd.read_csv(lookup_table_path)
 
         elements = []
@@ -187,31 +185,6 @@ class Element:
         return elements
 
 
-
-# Define Material class
-class Material_20250108_1818:
-    def __init__(self, key, young_modulus, area):
-        self.key = key
-        self.young_modulus = young_modulus
-        self.area = area
-        
-    @staticmethod
-    def create_materials_old(data):
-        materials = {m_id: Material(key=m_id, **props) for m_id, props in data["materials"].items()}
-        return materials
-    
-    @staticmethod
-    def create_materials(data):
-        desired_keys = {"young_modulus", "area"}  # List desired keys
-        materials = {
-            m_id: Material(
-                key=m_id,
-                **{k: v for k, v in props.items() if k in desired_keys}  # Filter for desired keys
-            )
-            for m_id, props in data["materials"].items()
-        }
-        return materials
-        
 class Shape:
     def __init__(self, key, area, moment_of_inertia=None): # Todo: Provide Ix and Iy instead of MoI
         self.key = key
@@ -248,34 +221,6 @@ class Material:
             for m_id, props in data["materials"].items()
         }
         return materials
-
-def create_and_assign_material_20250108_1850(element, selected_beam, data):
-    """
-    Create a new material for the selected beam and assign it to the element.
-
-    Parameters:
-        element: The element to which the material will be assigned.
-        selected_beam: The selected beam data (row from beam_table).
-        data: The JSON data for adding new materials.
-    """
-    # Create a new material for the selected beam
-    new_material_key = selected_beam['Shape']
-    new_material = Material(
-        key=new_material_key,
-        young_modulus=element.material.young_modulus,  # Retain original modulus
-        area=selected_beam['Area (m2)']  # Update to the selected beam's area
-    )
-    
-    # Add the new material to the JSON data for export
-    data["materials"][new_material_key] = {
-        "young_modulus": new_material.young_modulus,
-        "area": new_material.area
-    }
-
-    # Update the element's material properties
-    element.material = new_material
-
-    return new_material_key
 
 def create_and_assign_material(element, selected_beam, data):
     """
