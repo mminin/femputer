@@ -46,24 +46,24 @@ def select_nodes_in_polygon(nodes, polygon):
     
 
 def create_elements(nodes, resolution, default_shape, default_material):
-    """Generate Element objects connecting the nodes in a regular grid without duplicates."""
     elements = set()
-    node_indices = np.arange(len(nodes)).reshape(resolution)
-    for i in range(resolution[0] - 1):
-        for j in range(resolution[1] - 1):
+    # resolution = (nx, ny)  # So reshape as (ny, nx) for meshgrid's order
+    nx, ny = resolution
+    node_indices = np.arange(len(nodes)).reshape((ny, nx))
+    for i in range(ny - 1):     # rows (y)
+        for j in range(nx - 1): # columns (x)
             n1 = node_indices[i, j]
-            n2 = node_indices[i + 1, j]
+            n2 = node_indices[i, j + 1]
             n3 = node_indices[i + 1, j + 1]
-            n4 = node_indices[i, j + 1]
+            n4 = node_indices[i + 1, j]
             
-            elements.add((n1, n2))  # Bottom edge
-            elements.add((n2, n3))  # Right edge
-            elements.add((n3, n4))  # Top edge
-            elements.add((n4, n1))  # Left edge
-            elements.add((n1, n3))  # Diagonal cross 1
-            elements.add((n2, n4))  # Diagonal cross 2
+            elements.add((n1, n2))  # Bottom edge (horizontal)
+            elements.add((n2, n3))  # Right edge   (vertical)
+            elements.add((n3, n4))  # Top edge     (horizontal)
+            elements.add((n4, n1))  # Left edge    (vertical)
+            elements.add((n1, n3))  # Diagonal
+            elements.add((n2, n4))  # Diagonal
 
-    # Create Element objects with default shape and material
     element_objects = [
         Element(ID=i, node1=nodes[n1], node2=nodes[n2], shape=default_shape, material=default_material)
         for i, (n1, n2) in enumerate(elements)
